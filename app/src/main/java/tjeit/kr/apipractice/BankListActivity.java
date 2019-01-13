@@ -11,12 +11,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import tjeit.kr.apipractice.adapter.BankAdapter;
 import tjeit.kr.apipractice.datas.Bank;
 import tjeit.kr.apipractice.utils.ConnectServer;
 
 public class BankListActivity extends BaseActivity {
 
     List<Bank> bankList = new ArrayList<Bank>();
+    BankAdapter mAdapter;
 
     private android.widget.ListView bankListView;
 
@@ -36,6 +38,10 @@ public class BankListActivity extends BaseActivity {
 
     @Override
     public void setValues() {
+
+        mAdapter = new BankAdapter(mContext, bankList);
+        bankListView.setAdapter(mAdapter);
+
 //        코드가 setValues안에서 길어지는걸 막기 위해
 //        서버에서 은행목록 받아오는 코드는 별개 메쏘드로 작성
         getBanksFromServer();
@@ -61,6 +67,8 @@ public class BankListActivity extends BaseActivity {
                             Bank bankObject = Bank.getBankFromJson(bankJson);
                             bankList.add(bankObject);
                         }
+
+                        mAdapter.notifyDataSetChanged();
 
 
                     }
