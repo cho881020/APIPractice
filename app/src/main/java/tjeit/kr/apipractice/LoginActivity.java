@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -13,6 +14,7 @@ import org.json.JSONObject;
 
 import tjeit.kr.apipractice.datas.User;
 import tjeit.kr.apipractice.utils.ConnectServer;
+import tjeit.kr.apipractice.utils.ContextUtil;
 
 public class LoginActivity extends BaseActivity {
 
@@ -21,6 +23,7 @@ public class LoginActivity extends BaseActivity {
     private android.widget.Button loginBtn;
     private android.widget.TextView findPwTxt;
     private android.widget.Button signUpBtn;
+    private android.widget.CheckBox autoLoginCheckBox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +57,31 @@ public class LoginActivity extends BaseActivity {
 
                                     final String message = json.getString("message");
 
-                                    JSONObject data = json.getJSONObject("data");
-                                    JSONObject userJson = data.getJSONObject("user");
+                                    if (code == 200) {
+                                        JSONObject data = json.getJSONObject("data");
+                                        JSONObject userJson = data.getJSONObject("user");
 
-                                    User user = User.getUserFromJson(userJson);
+                                        User user = User.getUserFromJson(userJson);
 
-                                    Log.d("로그인응답", "로그인한사람이름 : " + user.getName());
+                                        Log.d("로그인응답", "로그인한사람이름 : " + user.getName());
+
+                                        String token = data.getString("token");
+
+                                        if (autoLoginCheckBox.isChecked()) {
+//                                            자동로그인을 하고싶다 => SharedPreference을 이용해 토큰을 (반영구) 저장
+                                            ContextUtil.setToken(mContext, token);
+                                        }
+
+
+                                    } else {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
+
 
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -82,8 +104,8 @@ public class LoginActivity extends BaseActivity {
     @Override
     public void bindViews() {
 
-
         this.signUpBtn = (Button) findViewById(R.id.signUpBtn);
+        this.autoLoginCheckBox = (CheckBox) findViewById(R.id.autoLoginCheckBox);
         this.findPwTxt = (TextView) findViewById(R.id.findPwTxt);
         this.loginBtn = (Button) findViewById(R.id.loginBtn);
         this.passwordEdt = (EditText) findViewById(R.id.passwordEdt);
