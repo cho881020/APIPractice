@@ -1,5 +1,6 @@
 package tjeit.kr.apipractice;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +16,7 @@ import org.json.JSONObject;
 import tjeit.kr.apipractice.datas.User;
 import tjeit.kr.apipractice.utils.ConnectServer;
 import tjeit.kr.apipractice.utils.ContextUtil;
+import tjeit.kr.apipractice.utils.GlobalData;
 
 public class LoginActivity extends BaseActivity {
 
@@ -62,15 +64,22 @@ public class LoginActivity extends BaseActivity {
                                         JSONObject userJson = data.getJSONObject("user");
 
                                         User user = User.getUserFromJson(userJson);
+                                        GlobalData.loginUser = user;
 
                                         Log.d("로그인응답", "로그인한사람이름 : " + user.getName());
 
                                         String token = data.getString("token");
+                                        GlobalData.token = token;
 
                                         if (autoLoginCheckBox.isChecked()) {
 //                                            자동로그인을 하고싶다 => SharedPreference을 이용해 토큰을 (반영구) 저장
                                             ContextUtil.setToken(mContext, token);
                                         }
+
+                                        Intent intent = new Intent(mContext, MainActivity.class);
+                                        startActivity(intent);
+//                                        로그인에 성공하면 로그인화면은 종료.
+                                        finish();
 
 
                                     } else {
